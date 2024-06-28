@@ -1,0 +1,59 @@
+* {
+  box-sizing: border-box;
+  padding: 0px;
+  margin: 0px;
+}
+
+body {
+  padding: 2rem;
+  color: brown;
+}
+
+h1 {
+  font-family: "Roboto";
+  text-align: center;
+  margin: 0.5rem 0;
+}
+
+button {
+  font-size: inherit;
+  outline: none;
+  border: none;
+  text-align: center;
+  font-weight: 600;
+  padding: 1rem;
+  background-color: rgb(42, 40, 40);
+  cursor: pointer;
+  text-transform: uppercase;
+  border-radius: 0.5rem;
+  color: inherit;
+}
+
+.field {
+  font-family: "Roboto";
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  background-color: rgb(42, 40, 40);
+}
+
+.field__cell {
+  border: 1px solid #9ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.bomb {
+  background: brown;
+  font-weight: 700;
+}
+
+.controls {
+  margin: 1rem;
+  padding: 0.5rem;
+}
