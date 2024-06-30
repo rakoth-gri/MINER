@@ -1,4 +1,4 @@
-import { getBombCoord, filterCoords } from "./utils.js";
+import { getBombCoord, filterCoords,  } from "./utils.js";
 import { T_OBJECT_UNIVERSAL, T_KEYS_UNIVERSAL, I_STATE } from "./types";
 import { state } from "./state.js";
 
@@ -19,9 +19,9 @@ function createFieldState(state: I_STATE) {
   for (let i = 0; i < row; i++) {
     let b = getBombCoord(row ** 2);
     if (!bombsCoords.includes(b)) {
-      updateBombSiblingsState(b, state)
-        .filter((с) => state.field[с] >= 0)
-        .forEach((с, i) => (i > 0 ? state.field[с]++ : (state.field[с] = -1)));
+      updateBombSiblingsState(b, state).forEach((с, i) =>
+        i > 0 ? state.field[с]++ : (state.field[с] = -1)
+      );
       bombsCoords.push(b);
     }
   }
@@ -63,9 +63,7 @@ function clickHander(e: MouseEvent, { field, cellState }: I_STATE) {
       // setTimeout(() => resetHandler(), 2000);
       break;
     case 0:
-      const siblings = updateBombSiblingsState(coord, state).filter(
-        (s) => field[s] >= 0
-      );
+      const siblings = updateBombSiblingsState(coord, state);
       return siblings.forEach((c) => {
         switch (field[c]) {
           case cellState.empty:
@@ -101,27 +99,26 @@ function updateProgress(c: number) {
   (state as I_STATE).progress.includes(c)
     ? false
     : (state as I_STATE).progress.push(c);
-  console.log(state.progress);
 }
 
 // Обновляем cостояния клетки бомбы и смежных с ней клеток ----------------------
-function updateBombSiblingsState(b: number, { row }: I_STATE) {
-  let siblings = [];
-
+function updateBombSiblingsState(b: number, { row, field }: I_STATE) {
   if (b % row === 0) {
-    siblings = filterCoords(
+    return filterCoords(
       [b, b + row, b - row, b + 1, b - row + 1, b + row + 1],
 
-      row
+      row,
+      field
     );
   } else if ((b + 1) % row === 0) {
-    siblings = filterCoords(
+    return filterCoords(
       [b, b + row, b - row, b - 1, b - row - 1, b + row - 1],
 
-      row
+      row,
+      field
     );
   } else
-    siblings = filterCoords(
+    return filterCoords(
       [
         b,
         b + row,
@@ -133,9 +130,9 @@ function updateBombSiblingsState(b: number, { row }: I_STATE) {
         b + row + 1,
         b + row - 1,
       ],
-      row
+      row,
+      field
     );
-  return siblings;
 }
 
 $RESET.addEventListener("click", resetHandler);
