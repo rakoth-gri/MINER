@@ -1,0 +1,22 @@
+.field {  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    background-color: rgb(42, 40, 40);
+  }
+  
+  .field__cell {
+    border: 1px solid #9ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  .bomb {
+    background: brown;
+    font-weight: 700;
+  }
+  
