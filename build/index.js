@@ -6,6 +6,9 @@ import {
 import { state } from "./state.js";
 import { $START, $FIELD, $RESET, $PROGRESS } from "./const.js";
 
+
+
+
 $START.addEventListener("click", () => createInitialFieldState(state));
 // Формируем матрицу поля и массив координат бомб (вызываем единожды )
 function createInitialFieldState(state) {
@@ -30,7 +33,7 @@ function drawField($container, state) {
     .join("");
   $container.innerHTML = html;
   // Переопределяем глобальную переменную:
-  state.$CELLS = $container.querySelectorAll(".field__cell");
+  state.$CELLS = $container.querySelectorAll(".field__cell");  
   styleField(state);
 }
 // СТИЛИЗУЕМ ПОЛЕ  --------------------------------------------------------------------
@@ -125,8 +128,8 @@ function resetHandler() {
 }
 
 // Установка флага будущей попытки ----------
-$FIELD.addEventListener("contextmenu", contextmenu);
-function contextmenu(e) {
+$FIELD.addEventListener("contextmenu", attemptHandler);
+function attemptHandler(e) {
   e.preventDefault();
   if (!e.target.matches(".field__cell")) return;
   state.$CELLS[+e.target.id].textContent = state.cellState.flag;
