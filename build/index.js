@@ -6,37 +6,35 @@ import {
 import { state } from "./state.js";
 import { $START, $FIELD, $RESET, $PROGRESS } from "./const.js";
 
-
-
-
 $START.addEventListener("click", () => createInitialFieldState(state));
-// Формируем матрицу поля и массив координат бомб (вызываем единожды )
+// Формируем матрицу cостояние поля и массив координат бомб:
 function createInitialFieldState(state) {
-  const { row, bombsCoords } = state;
-  state.field = Array(row ** 2).fill(0);
+  const { row, bombsCoords, field } = state;
+  field.push(...Array(row ** 2).fill(0));  
   for (let i = 0; i < row; i++) {
-    let b = getBombCoord(row ** 2);
-    if (!bombsCoords.includes(b)) {
-      defineBombSiblings(b, state).forEach((с, i) =>
-        i > 0 ? state.field[с]++ : (state.field[с] = -1)
-      );
-      bombsCoords.push(b);
+    let bomb = getBombCoord(row ** 2);
+    if (!bombsCoords.includes(bomb)) {
+      let siblings = defineBombSiblings(bomb, state);      
+      // изменяем стэйт клеток сиблингов, исключая клетки с бомбами:
+      siblings.filter((s) => field[s] >= 0).forEach((s) => field[s]++);
+      bombsCoords.push(bomb);
     }
-  }
+  } 
   drawField($FIELD, state);
 }
 
-// 😧 РИСУЕМ СЕТКУ С ЯЧЕЙКАМИ --------------------------------------------------------------------
+// 😧 РИСУЕМ РАБОЧЕЕ ПОЛЕ--------------------------------------------------------------
 function drawField($container, state) {
   let html = state.field
     .map((_, i) => `<div class='field__cell' id='${i}'> 😧 </div>`)
     .join("");
   $container.innerHTML = html;
   // Переопределяем глобальную переменную:
-  state.$CELLS = $container.querySelectorAll(".field__cell");  
+  state.$CELLS = $container.querySelectorAll(".field__cell");
+
   styleField(state);
 }
-// СТИЛИЗУЕМ ПОЛЕ  --------------------------------------------------------------------
+// СТИЛИЗУЕМ РАБОЧЕЕ ПОЛЕ  --------------------------------------------------------------
 function styleField(state) {
   const { cellWidth, row } = state;
   $FIELD.style.width = `${cellWidth * row}px`;
@@ -44,7 +42,7 @@ function styleField(state) {
     c.setAttribute("style", `width: ${cellWidth}px; height: ${cellWidth}px;`)
   );
 }
-// Вешаем Обработчик --------------------------------------------------------------------
+// 1 ОБРАБОТЧИК НА ЦЕЛОЕ ПОЛЕ ------------------------------------------
 $FIELD.addEventListener("click", (e) => fieldClickHandler(e, state));
 
 function fieldClickHandler(e, state) {
@@ -52,68 +50,76 @@ function fieldClickHandler(e, state) {
 
   const { field, cellState, $CELLS } = state;
   const coord = +e.target.id;
-
   switch (field[coord]) {
     case -1:
-      return ($CELLS[coord].textContent = cellState[-1]);
-    // return resetHandler();
-    case 0:
-      defineEmptyCellSiblings(coord, state).forEach((coord) => {
-        switch (field[coord]) {
-          case cellState[0]:
-            $CELLS[coord].textContent = cellState[0];
-            return updateProgress(coord, state);
-          default:
-            $CELLS[coord].textContent = `${field[coord]}`;
-            return updateProgress(coord, state);
-        }
-      });
+      $CELLS[coord].textContent = cellState[-1];
+      setTimeout(() => {
+        alert("Ты проиграл");
+        resetHandler();
+      }, 0);
       break;
+    case 0:
+      $CELLS[coord].textContent = cellState[0];
+      return updateProgress(coord, state);
     default:
       $CELLS[coord].textContent = `${field[coord]}`;
-      break;
+      return updateProgress(coord, state);
   }
-  updateProgress(coord, state);
 }
 
-// обновлем Прогресс: --------------------------------------------------------------------
+// ОБНОВЛЯЕМ ПРОГРЕCC: -------------------------------------------------------
 function updateProgress(c, state) {
   !state.progress.includes(c) && state.progress.push(c);
-  $PROGRESS.value = calcCurrProgress(state);  
+  console.log(state.progress);
+  $PROGRESS.value = calcCurrProgress(state);
+  if (state.progress.length === state.field.length - state.bombsCoords.length) {
+    setTimeout(() => {
+      alert("Ты выйграл!");
+      resetHandler();
+    }, 0);
+  }
 }
 
-const defineEmptyCellSiblings = (coord, state) => {
-  let res = [];
-  defineBombSiblings(coord, state).forEach((s) =>
-    res.push(...defineBombSiblings(s, state))
-  );
-  return new Set(res);
-};
-
-// Обновляем cостояния клетки бомбы и смежных с ней клеток ----------------------
-function defineBombSiblings(b, { row, field }) {
-  if (b % row === 0) {
+// ВЫЧИСЛЕНИЕ СИБЛИНГОВ ПО 8 НАПРАВЛЕНИЯМ ОТ БОМБЫ ----------------------
+function defineBombSiblings(coord, { row, field }) {
+  // меняем стэйт клетки поля с бомбой ---!
+  field[coord] = -1;
+  if (coord % row === 0) {
     return filterOutOfRangeCoords(
-      [b, b + row, b - row, b + 1, b - row + 1, b + row + 1],
+      [
+        coord,
+        coord + row,
+        coord - row,
+        coord + 1,
+        coord - row + 1,
+        coord + row + 1,
+      ],
       field
     );
-  } else if ((b + 1) % row === 0) {
+  } else if ((coord + 1) % row === 0) {
     return filterOutOfRangeCoords(
-      [b, b + row, b - row, b - 1, b - row - 1, b + row - 1],
+      [
+        coord,
+        coord + row,
+        coord - row,
+        coord - 1,
+        coord - row - 1,
+        coord + row - 1,
+      ],
       field
     );
   } else {
     return filterOutOfRangeCoords(
       [
-        b,
-        b + row,
-        b - row,
-        b + 1,
-        b - 1,
-        b - row + 1,
-        b - row - 1,
-        b + row + 1,
-        b + row - 1,
+        coord,
+        coord + row,
+        coord - row,
+        coord + 1,
+        coord - 1,
+        coord - row + 1,
+        coord - row - 1,
+        coord + row + 1,
+        coord + row - 1,
       ],
       field
     );
@@ -123,6 +129,7 @@ $RESET.addEventListener("click", resetHandler);
 function resetHandler() {
   state.bombsCoords = [];
   state.progress = [];
+  state.field = [];
   $PROGRESS.value = 0;
   createInitialFieldState(state);
 }

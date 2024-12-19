@@ -13,6 +13,7 @@ body {
   color: brown;
   font-size: 20px;
   font-family: "Roboto";
+  background: -webkit-linear-gradient(90deg, #363940,#10151b);
 }
 
 main {
@@ -46,7 +47,7 @@ button {
 
 .progress_bar {
   width: 100%;
-  padding: 1rem;  
+  padding: 1rem;
 }
 
 .progress_bar::-moz-progress-bar {
