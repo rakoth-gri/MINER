@@ -10,16 +10,16 @@ $START.addEventListener("click", () => createInitialFieldState(state));
 // Формируем матрицу cостояние поля и массив координат бомб:
 function createInitialFieldState(state) {
   const { row, bombsCoords, field } = state;
-  field.push(...Array(row ** 2).fill(0));  
+  field.push(...Array(row ** 2).fill(0));
   for (let i = 0; i < row; i++) {
     let bomb = getBombCoord(row ** 2);
     if (!bombsCoords.includes(bomb)) {
-      let siblings = defineBombSiblings(bomb, state);      
+      const siblings = defineBombSiblings(bomb, state);
       // изменяем стэйт клеток сиблингов, исключая клетки с бомбами:
       siblings.filter((s) => field[s] >= 0).forEach((s) => field[s]++);
       bombsCoords.push(bomb);
     }
-  } 
+  }
   drawField($FIELD, state);
 }
 
@@ -70,7 +70,7 @@ function fieldClickHandler(e, state) {
 // ОБНОВЛЯЕМ ПРОГРЕCC: -------------------------------------------------------
 function updateProgress(c, state) {
   !state.progress.includes(c) && state.progress.push(c);
-  console.log(state.progress);
+
   $PROGRESS.value = calcCurrProgress(state);
   if (state.progress.length === state.field.length - state.bombsCoords.length) {
     setTimeout(() => {

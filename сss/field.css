@@ -4,6 +4,7 @@
     justify-content: center;
     flex-wrap: wrap;
     background-color: rgb(42, 40, 40);
+    margin: 1rem auto;
   }
   
   .field__cell {
